@@ -1,0 +1,15 @@
+.container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.textbox {
+  width: 50px;
+  text-align: center;
+}
+
+.add-sub-buttons {
+  display: flex;
+  gap: 4px;
+}
