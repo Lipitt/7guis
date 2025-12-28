@@ -34,6 +34,11 @@ const FlightBooker = () => {
     }
   };
 
+  const handleFromDateChange = date => {
+    setFromDate(date);
+    validateDate(date);
+  };
+
   const validateDate = date => {
     if (date.length < 9) {
       return;
@@ -42,6 +47,10 @@ const FlightBooker = () => {
     if (date.length > 9) {
       //handle error
     }
+
+    const nonNumberRegex = /[^0-9]/g;
+    const dateArray = date.split(nonNumberRegex);
+    console.log(dateArray);
   };
 
   return (
@@ -60,7 +69,8 @@ const FlightBooker = () => {
         </select>
         <input
           type="text"
-          onChange={e => setFromDate(e.target.value)}
+          //onChange={e => setFromDate(e.target.value)}
+          onChange={e => handleFromDateChange(e.target.value)}
           value={fromDate}
         />
         <input
