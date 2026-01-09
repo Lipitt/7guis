@@ -9,14 +9,24 @@ const flightTypes = {
 
 const FlightBooker = () => {
   const [flightType, setFlightType] = useState(flightTypes.oneWayFlight);
-  const [fromDate, setFromDate] = useState("2025-12-21");
+  const [fromDate, setFromDate] = useState("21-12-2025");
   const [toDate, setToDate] = useState("21-12-2025");
+  const [fromDateError, setFromDateError] = useState(false);
+  const [toDateError, setToDateError] = useState(false);
+  const [disableSubmit, setDisableSubmit] = useState(false);
 
   const handleSubmit = () => {
     if (flightType === flightTypes.oneWayFlight) {
       alert(`You have booked a ${flightType} for ${fromDate}`);
     } else {
       alert(`You have booked a ${flightType} from ${fromDate} to ${toDate}`);
+    }
+  };
+
+  const handleFlightTypeChange = value => {
+    setFlightType(value);
+    if (value === flightTypes.returnFlight) {
+      isReturnFlightBeforeOneWay();
     }
   };
 
@@ -28,29 +38,45 @@ const FlightBooker = () => {
     console.log(oneWayFlightDate);
 
     if (returnFlightDate < oneWayFlightDate) {
-      console.log("bonanza!");
+      setDisableSubmit(false);
     } else {
-      console.log("fail!");
+      setDisableSubmit(true);
     }
   };
 
   const handleFromDateChange = date => {
     setFromDate(date);
-    validateDate(date);
+
+    if (validateDate(date)) {
+      setFromDateError(false);
+      setDisableSubmit(false);
+    } else {
+      setFromDateError(true);
+      setDisableSubmit(true);
+    }
+  };
+
+  const handleToDateChange = date => {
+    setToDate(date);
+
+    if (validateDate(date)) {
+      setToDateError(false);
+      setDisableSubmit(false);
+    } else {
+      setToDateError(true);
+      setDisableSubmit(true);
+    }
   };
 
   const validateDate = date => {
-    if (date.length < 9) {
-      return;
+    const dateValidatorRegex = /^\d{2}\D\d{2}\D\d{4}$/;
+    if (date.length !== 10) {
+      return false;
+    } else if (dateValidatorRegex.test(date)) {
+      return true;
+    } else {
+      return false;
     }
-
-    if (date.length > 9) {
-      //handle error
-    }
-
-    const nonNumberRegex = /[^0-9]/g;
-    const dateArray = date.split(nonNumberRegex);
-    console.log(dateArray);
   };
 
   return (
@@ -58,7 +84,7 @@ const FlightBooker = () => {
       <div className="flight-booker">
         <select
           value={flightType}
-          onChange={e => setFlightType(e.target.value)}
+          onChange={e => handleFlightTypeChange(e.target.value)}
         >
           <option value={flightTypes.oneWayFlight}>
             {flightTypes.oneWayFlight}
@@ -69,17 +95,20 @@ const FlightBooker = () => {
         </select>
         <input
           type="text"
-          //onChange={e => setFromDate(e.target.value)}
           onChange={e => handleFromDateChange(e.target.value)}
           value={fromDate}
+          style={{ backgroundColor: `${fromDateError ? "orange" : "white"}` }}
         />
         <input
           type="text"
-          onChange={e => setToDate(e.target.value)}
+          onChange={e => handleToDateChange(e.target.value)}
           value={toDate}
           disabled={flightType === flightTypes.oneWayFlight}
+          style={{ backgroundColor: `${toDateError ? "orange" : "white"}` }}
         />
-        <button onClick={isReturnFlightBeforeOneWay}>Book</button>
+        <button disabled={disableSubmit} onClick={handleSubmit}>
+          Book
+        </button>
       </div>
     </Window>
   );
