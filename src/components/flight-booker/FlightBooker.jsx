@@ -1,6 +1,7 @@
 import { useState } from "react";
 import Window from "../window/Window";
 import "./FlightBooker.css";
+import { validateDate } from "./utils";
 
 const flightTypes = {
   oneWayFlight: "One-way flight",
@@ -31,16 +32,13 @@ const FlightBooker = () => {
   };
 
   const isReturnFlightBeforeOneWay = () => {
-    const oneWayFlightDate = new Date(fromDate, "");
+    const oneWayFlightDate = new Date(fromDate);
     const returnFlightDate = new Date(toDate);
 
-    console.log(returnFlightDate);
-    console.log(oneWayFlightDate);
-
     if (returnFlightDate < oneWayFlightDate) {
-      setDisableSubmit(false);
-    } else {
       setDisableSubmit(true);
+    } else {
+      setDisableSubmit(false);
     }
   };
 
@@ -65,17 +63,6 @@ const FlightBooker = () => {
     } else {
       setToDateError(true);
       setDisableSubmit(true);
-    }
-  };
-
-  const validateDate = date => {
-    const dateValidatorRegex = /^\d{2}\D\d{2}\D\d{4}$/;
-    if (date.length !== 10) {
-      return false;
-    } else if (dateValidatorRegex.test(date)) {
-      return true;
-    } else {
-      return false;
     }
   };
 
