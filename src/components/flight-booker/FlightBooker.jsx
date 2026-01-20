@@ -14,7 +14,6 @@ const FlightBooker = () => {
   const [toDate, setToDate] = useState("21-12-2025");
   const [fromDateError, setFromDateError] = useState(false);
   const [toDateError, setToDateError] = useState(false);
-  const [disableSubmit, setDisableSubmit] = useState(false);
 
   const handleSubmit = () => {
     if (flightType === flightTypes.oneWayFlight) {
@@ -26,44 +25,46 @@ const FlightBooker = () => {
 
   const handleFlightTypeChange = value => {
     setFlightType(value);
-    if (value === flightTypes.returnFlight) {
-      isReturnFlightBeforeOneWay();
-    }
   };
 
-  const isReturnFlightBeforeOneWay = () => {
-    const oneWayFlightDate = new Date(fromDate);
-    const returnFlightDate = new Date(toDate);
+  const toISODate = input => {
+    const [day, month, year] = input.match(/\d+/g) || [];
+    if (!day || !month || !year) return null;
 
-    if (returnFlightDate < oneWayFlightDate) {
-      setDisableSubmit(true);
-    } else {
-      setDisableSubmit(false);
-    }
+    return `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
+  };
+
+  const isReturnFlightBeforeOneWay = (fromDate, toDate) => {
+    const oneWayFlightDate = new Date(toISODate(fromDate));
+    const returnFlightDate = new Date(toISODate(toDate));
+
+    return returnFlightDate < oneWayFlightDate;
   };
 
   const handleFromDateChange = date => {
     setFromDate(date);
-
-    if (validateDate(date)) {
-      setFromDateError(false);
-      setDisableSubmit(false);
-    } else {
-      setFromDateError(true);
-      setDisableSubmit(true);
-    }
+    setFromDateError(validateDate(date));
   };
 
   const handleToDateChange = date => {
     setToDate(date);
+    setToDateError(validateDate(date));
+  };
 
-    if (validateDate(date)) {
-      setToDateError(false);
-      setDisableSubmit(false);
-    } else {
-      setToDateError(true);
-      setDisableSubmit(true);
+  const isSubmitButtonDisabled = (
+    fromDateError,
+    toDateError,
+    fromDate,
+    toDate,
+    flightType
+  ) => {
+    if (fromDateError || toDateError) {
+      return true;
     }
+
+    return flightType === flightTypes.returnFlight
+      ? isReturnFlightBeforeOneWay(fromDate, toDate)
+      : false;
   };
 
   return (
@@ -93,7 +94,16 @@ const FlightBooker = () => {
           disabled={flightType === flightTypes.oneWayFlight}
           style={{ backgroundColor: `${toDateError ? "orange" : "white"}` }}
         />
-        <button disabled={disableSubmit} onClick={handleSubmit}>
+        <button
+          disabled={isSubmitButtonDisabled(
+            fromDateError,
+            toDateError,
+            fromDate,
+            toDate,
+            flightType
+          )}
+          onClick={handleSubmit}
+        >
           Book
         </button>
       </div>
